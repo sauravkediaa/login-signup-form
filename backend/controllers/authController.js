@@ -48,16 +48,21 @@ export const verifyOtp = async (req, res) => {
 };
 
 
-//registering new users
 export const registerUser = async (req, res) => {
     try {
         const { phone, firstName, lastName, email, dob } = req.body;
 
-        await db.execute("INSERT INTO users (phone, first_name, last_name, email, dob) VALUES (?, ?, ?, ?, ?)",
-            [phone, firstName, lastName, email, dob]);
+        await db.execute(
+            "INSERT INTO users (phone, first_name, last_name, email, dob) VALUES (?, ?, ?, ?, ?)",
+            [phone, firstName, lastName, email, dob]
+        );
 
-        res.json({ success: true, msg: "Successfully registered" });
+        // Fetch the newly registered user
+        const [user] = await db.execute("SELECT * FROM users WHERE phone=?", [phone]);
+
+        res.json({ success: true, msg: "Successfully registered", user: user[0] });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 };
+
